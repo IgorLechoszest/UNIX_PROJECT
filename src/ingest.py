@@ -38,4 +38,4 @@ def fetch_and_save_reddit(subreddit, limit=5):
         raise e
 
 if __name__ == "__main__":
-    fetch_and_save_reddit('datascience', limit=30)
+    fetch_and_save_reddit('polska', limit=21)
