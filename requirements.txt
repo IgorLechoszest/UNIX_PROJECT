@@ -1,0 +1,11 @@
+# Biblioteki używane w Twoim nowym kodzie
+requests
+pandas
+
+# Biblioteki do dalszych etapów projektu (Snowflake + ML)
+snowflake-sqlalchemy
+snowflake-connector-python
+python-dotenv
+scikit-learn
+joblib
+dvc
