@@ -1,0 +1,46 @@
+services:
+  # Serwis inicjalizujący - uruchamia się, tworzy bazę/użytkownika i kończy pracę
+  airflow-init:
+    build: .
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=SequentialExecutor
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=sqlite:////opt/airflow/airflow.db
+    volumes:
+      - .:/opt/airflow
+    # Ta komenda inicjuje bazę i tworzy konto admina (login: airflow, hasło: airflow)
+    command: >
+      bash -c "airflow db init &&
+      airflow users create --username airflow --firstname Admin --lastname Admin --role Admin --email admin@example.com --password airflow"
+
+  airflow-webserver:
+    build: .
+    restart: always
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+    ports:
+      - "8081:8080"
+    volumes:
+      - .:/opt/airflow
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=SequentialExecutor
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=sqlite:////opt/airflow/airflow.db
+    command: webserver
+
+  airflow-scheduler:
+    build: .
+    restart: always
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+    volumes:
+      - .:/opt/airflow
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=SequentialExecutor
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=sqlite:////opt/airflow/airflow.db
+    command: scheduler

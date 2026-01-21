@@ -1,0 +1,97 @@
+title,author,score,upvote_ratio,num_comments,over_18,is_video,link_flair_text,view_count,created_utc,url,top_comments_preview
+"Nvidia: End-to-End Test-Time Training for Long Context aka Being Able To Update A Model's Weights In Real-Time As You Use It | ""TTT changes the paradigm from retrieving info to learning it on the fly...the TTT model treats the context window as a dataset &amp; trains itself on it in real-time."" [R]",44th--Hokage,240,0.97,20,False,False,Research,,2026-01-15 02:43:26,https://www.reddit.com/r/MachineLearning/comments/1qd696s/nvidia_endtoend_testtime_training_for_long/,"OD fiery_prometheus:
+How does this deal with the problem in continual learning, where forgetting the initial training data (catastrophic forgetting) sets in at some point? | OD -p-e-w-:
+&gt; making it 2.7x faster than full attention for 128K context
+
+Crazy stuff. I’d have expected an order of magnitude overhead for live training, instead it’s actually a performance *improvement* over naive attention. | OD ToHallowMySleep:
+Doesn't this conflate training with inference, meaning the actual compute effort to infer is much, much harder than with more ""conventional"" methods?
+
+Haven't read the paper yet, apologies if this is really obvious :)"
+[R] Extending the Context of Pretrained LLMs by Dropping Their Positional Embeddings,AhmedMostafa16,117,0.96,23,False,False,Research,,2026-01-12 06:53:29,https://www.reddit.com/r/MachineLearning/comments/1qamyre/r_extending_the_context_of_pretrained_llms_by/,"OD possiblyquestionabl3:
+I'm a simple man, I see someone still working on getting RoPE to generalize, I check them out
+
+This one is really interesting and combines a lot of the major observations over the past 2.5 years of trying out various RoPE hacks:
+
+1. RoPE admittedly is horrible at generalizing to OOD context lengths because transformers (and really any gradient based optimizers in general) have trouble actually learning the behavior of high frequency data. However, the positional information of tokens is precisely captured by these high frequency data (in particular pairwise token distance), and the general consensus is that the transformer more or less overfits the pattern of the RoPE encoding rather than learning the actual high frequency pattern (which is an impossible ask for these types of optimizers)
+2. RoPE is necessary for training, otherwise transformers lack a way to develop strong inductive biases and representations of positional information organically through gradient based training. 
+3. Methods like Positional Interpolation on RoPE (rescale the positions by increasing the frequency) is able to preserve the behavior of the high frequency components of RoPE when we hit higher than trained context lengths. However, they heavily speed up the low-frequency components as well, which is often used by the transformer for certain representations (they are slow and smooth with predictable behavior, so they are easy to learn). Using PI will potentially break features/representations relying on this low frequency component of RoPE.
+4. NoPE (no positional encoding) with causal attention masks introduces a weak mechanism to encode positional information (this is already well known even prior to RoPE), but as in above, it's difficult to train a transformer on NoPE alone
+
+So their proposal is to start training with RoPE to quickly develop the inductive bias for positional encoding/information. Then do a small number of epochs dropping the RoPE encodings completely. They seem to be able to get their models to learn some transferred representation of the positional information, which not being an unbearable high frequency feature, they observed were able to generalize to OOD context lengths during evaluation.
+
+It's pretty neat. It'd be great if they could provide a strong guarantee of representational transfer of the positional information. Otherwise, they did a great job summarizing the major challenges with RoPE (why it's necessary for training, and why it's horrible for extrapolation from a purely learning theoretic perspective) | OD muntoo:
+Could we not also dropout the drop, i.e., dropout(D)RoPE?
+
+That is, perhaps there's some affine combination of training with RoPE and NoPE that's even better than DRoPE.
+
+RoPE RoPE RoPE RoPE RoPE RoPE NoPE RoPE NoPE RoPE NoPE ... RoPE | OD ashz8888:
+Interesting paper! I wonder how it compares with another recent paper that proposed PoPE: Polar Coordinate Positional Embedding (https://arxiv.org/abs/2509.10534) that they have shown to generalise better than RoPE as the context length increases."
+[D] Why Mamba rewrote its core algorithm and Microsoft abandoned RetNet,petroslamb,107,0.89,31,False,False,Discussion,,2026-01-16 15:47:45,https://www.reddit.com/r/MachineLearning/comments/1qehwlu/d_why_mamba_rewrote_its_core_algorithm_and/,"OD thearn4:
+Coevolution leading to a kind of locally optimal tuple of model formulation, solver structure, and backing hardware is a trend that I agree exists in ML. And you can see it in other domains using HPC in the broader technical computing world. I guess it's just that the incentives for incremental development are better than those for trying to break out and focus on something very different, in almost every field. | OD petroslamb:
+Full essay: [https://open.substack.com/pub/lambpetros/p/the-transformer-attractor](https://open.substack.com/pub/lambpetros/p/the-transformer-attractor)
+
+The RetNet case is particularly interesting because we genuinely can't tell from public evidence whether it failed due to hidden hardware friction at scale, quality degradation beyond 6.7B, or pure risk aversion. Microsoft never published the experiments that would distinguish these. | OD TyllyH:
+I think it’s fine that phd candidates work on experimental architectures that aren’t used in large scaled projects yet. The big companies will catch on once that research is more developed. It seems the RetNet author still is interested in model architecture, so it’s not like he gave up on it.
+
+Also, didn’t some large Chinese model use some idea inspired by this work?"
+[D] Burnout from the hiring process,RNRuben,93,0.91,38,False,False,Discussion,,2026-01-16 20:16:28,https://www.reddit.com/r/MachineLearning/comments/1qepc05/d_burnout_from_the_hiring_process/,"OD SlayahhEUW:
+Hey, I am currently at one of the frontier companies in the LLM-field. Right now it's a really chaotic time. In general, the hiring of new grads/interns is down to about 20% of previous years. The reasoning from senior leadership are LLM models, we are encouraged to use LLMs for all tasks, and a senior with a couple of agent can iterate on ideas much faster and more accurate/meaningfully than any new hire. Every 6 months (down to 3-4 at some other frontier companies I have contacts on), you have an evaluation and might end up with a warning if you did not produce enough. Second warning is the last warning, you are out.
+
+This means that the newly hired people are expected to be experts, and in general are expected to perform what before would have been a total outlier as an intern 5 years ago. You are supposed to be both a domain area expert, systems expert and programming expert.
+
+I would recommend that you either:
+
+1. Learn to code really well by yourself, learn AI agents really well, and identify where they can help you and where they are wrong.
+2. Apply to academic positions. 
+3. Apply to less prestigious jobs. Small companies have R&amp;D depts as well that are not as streamlined. | OD entarko:
+We are recruiting ML engineers, and we are baffled by the coding ability of candidates. So piece of advice: learn to code well, a LLM does not solve every problem (far from it). | OD mrproteasome:
+One important thing to consider is with the way the landscape is shifting with LLMs, its going to be more about agents and I suspect coding challenges are going to become agent challenges. I am intersecting with CAI in big pharma, and something basic I would look for is ""create an agent that can match named things in user input to some KB"".
+  
+Prefacing this with I agree with you 100% the burnout is wild...
+  
+What you need is practice. The code is really not that important and comes with experience from different projects and occupations. Once you get outside of research and you have to build things after different companies with different sizes, you will learn a whole bunch about real version control and best code practices. It is less about knowing how to code, and more about knowing what patterns to use and when, and ways to make things more more maintainable.
+  
+If you maintain any projects as a portfolio, make sure you have things that are multi-layered and E2E. I am making a lot of assumptions: have some stuff to show where you are not just writing and testing models, but implementing a multi-component system to solve a problem. It is important to demonstrate you can think about more than just your expertise and you have an understanding of how your components sit within everything else.
+  
+Example of one of mine: I made a CAI agent that can answer financial questions about local politicians in my country. To show off some of my cross-disciplinary abilities I made a system that:
+  
+- Application Ontology for modelling data as semantic triples
+  
+- Processes open data using medallion architecture
+  
+- Deploy data to a Neo4J instance
+  
+- Build an agent with some minimal tooling to support question-answering.
+  
+  
+Takes practice though; the specific tools and frameworks I use in my example were learned as part of my work and I would have no idea they existed otherwise (kind of)."
+[P] my shot at a DeepSeek style moe on a single rtx 5090,exhorder72,78,0.95,28,False,False,Project,,2026-01-14 20:53:25,https://www.reddit.com/r/MachineLearning/comments/1qcxhgw/p_my_shot_at_a_deepseek_style_moe_on_a_single_rtx/,"OD thinking_byte:
+This is honestly impressive, especially given the lack of formal ML background. What stood out to me was how many of the issues you hit were about stability and ops details, not the high level architecture. That mirrors a lot of product work where the last 20 percent is just managing weird edge cases. Curious how you think about the usefulness of this beyond the learning itself, like would you ever try to deploy or distill something like this, or is the goal mainly understanding the system end to end. Either way, props for writing it up so clearly. | OD gpbayes:
+What material(s) did you use to learn all of this? | OD AccordingWeight6019:
+This is honestly impressive, especially given the constraints you are working under. What stands out to me is that you are tracking the right failure modes rather than just celebrating throughput or loss curves. Small MoEs are brutal because a lot of the tricks from large-scale settings break silently, so the instability you describe around routing and scaling is very familiar. The dense first layer and symmetric init point is a lesson many people only learn after weeks of confusion. The interesting question to me is whether this setup actually teaches you transferable intuition for larger systems, or whether the single-GPU constraints force you into regimes that would not survive scale. Either way, the fact that you can articulate these trade-offs already puts you ahead of most people experimenting casually."
+[D] I see more people trying to explain mHC than build it,Affectionate_Use9936,71,0.89,17,False,False,Discussion,,2026-01-13 16:27:22,https://www.reddit.com/r/MachineLearning/comments/1qbu8wp/d_i_see_more_people_trying_to_explain_mhc_than/,"OD gnolruf:
+Way easier to remix an existing layman explanation to use your own analogies than to functionally implement it. Unfortunately, the former is becoming more common as the AI grift plane expands.
+
+
+Link the repo you mentioned!! | OD ApartmentEither4838:
+I somewhat agree on this take. I think a lot of it is due to AI influencers wanting to aura project by explaining every paper or idea that is currently trending | OD Automatic-Newt7992:
+Why don't build one instead of freeloading on GitHub repos /s"
+[R] (DeepSeek) Conditional Memory via Scalable Lookup: A New Axis of Sparsity for Large Language Models,Nunki08,58,0.97,2,False,False,Research,,2026-01-13 11:07:06,https://www.reddit.com/r/MachineLearning/comments/1qbnkrn/r_deepseek_conditional_memory_via_scalable_lookup/,"OD Luuigi:
+as always the whale is focused on increasing efficiency and throughput as much as possible. this solution doesn't look sexy at first if you ask me but it does its job and it does it well. you want to avoid forward passes to just recompute common facts and this seems to elude that extra computation. really nice"
+"[R] Vision Transformers with Self-Distilled Registers, NeurIPS 2025",44seconds,60,0.95,8,False,False,Research,,2026-01-13 15:51:15,https://www.reddit.com/r/MachineLearning/comments/1qbtbfb/r_vision_transformers_with_selfdistilled/,"OD possiblyquestionabl3:
+Is this sort of like attention sinks? Though I guess in that case, the problem was attention leakage due to the normalization requirement (the logits must sum to 1), while here it seems like it explicitly carries semantic low frequency/global semantic information? | OD getsugaboy:
+Impressive!  
+May I ask if this is a part of requirement for completion of a specific educational degree (like masters or PhD) or did you guys work on this just for the fun of the game?"
+[R] China just released first SOTA multimodal model trained entirely on domestic chips,Different_Case_6484,56,0.81,4,False,False,Research,,2026-01-16 09:27:32,https://www.reddit.com/r/MachineLearning/comments/1qeakhz/r_china_just_released_first_sota_multimodal_model/,"OD coredump3d:
+I haven't looked at the repo, but assuming that its not NV hardware anymore, how are they building on Pytorch and/or cuDNN (or variations thereof)? Can they be run on other machines?"
+"[D] What are the must-have books for graduate students/researchers in Machine Learning; especially for Dynamical Systems, Neural ODEs/PDEs/SDEs, and PINNs?",cutie_roasty,57,0.94,16,False,False,Discussion,,2026-01-12 14:06:35,https://www.reddit.com/r/MachineLearning/comments/1qaudob/d_what_are_the_musthave_books_for_graduate/,"OD valuat:
+General references:
+- Tom Mitchell (ML)
+- Chris Bishop (all 3 books)
+- Tishbirani et al (statistical learning)
+- Vapnik (statistical learning)
+- Bengio (deep learning)
+
+You can find the legally free PDF of some of these online. | OD Serverside:
+For dynamical systems in general, ""Nonlinear Dynamics and Chaos"" by Strogatz is a must, but you may have already read it based on the phrasing of your question. | OD drmattmcd:
+For neural ODEs etc check out diffrax and Patrick Kidger's thesis"

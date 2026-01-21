@@ -1,0 +1,214 @@
+title,score,author,num_comments,content,url,created_utc
+"Nvidia: End-to-End Test-Time Training for Long Context aka Being Able To Update A Model's Weights In Real-Time As You Use It | ""TTT changes the paradigm from retrieving info to learning it on the fly...the TTT model treats the context window as a dataset &amp; trains itself on it in real-time."" [R]",250,44th--Hokage,20,"####TL;DR:
+The paper describes a mechanism that essentially turns the context window into a training dataset for a ""fast weight"" update loop:
+
+ * **Inner Loop:** The model runs a mini-gradient descent on the context during inference. It updates specific MLP layers to ""learn"" the current context.
+ * **Outer Loop:** The model's initial weights are meta-learned during training to be ""highly updateable"" or optimized for this test-time adaptation
+
+**From the Paper:** ""Overall, our empirical observations strongly indicate that TTT-E2E should produce the same trend as full attention for scaling with training compute in large-budget production runs.""
+
+
+
+
+---
+
+
+
+####Abstract:
+
+&gt;We formulate long-context language modeling as a problem in continual learning rather than architecture design. Under this formulation, we only use a standard architecture a Transformer with sliding-window attention. 
+&gt;
+&gt;**However, our model continues learning at test time via next-token prediction on the given context, compressing the context it reads into its weights.** In addition, we improve the model's initialization for learning at test time via meta-learning at training time. Overall, our method, a form of Test-Time Training (TTT), is End-to-End (E2E) both at test time (via next-token prediction) and training time (via meta-learning), in contrast to previous forms. We conduct extensive experiments with a focus on scaling properties. 
+&gt;
+&gt;In particular, for 3B models trained with 164B tokens, our method (TTT-E2E) scales with context length in the same way as Transformer with full attention, while others, such as Mamba 2 and Gated DeltaNet, do not. However, similar to RNNs, TTT-E2E has constant inference latency regardless of context length, making it 2.7x faster than full attention for 128K context. **Our code is publicly available.**
+
+
+---
+
+####Layman's Explanation:
+
+Think of this paper as solving the memory bottleneck by fundamentally changing how a model processes information. Imagine you are taking a massive open-book exam. 
+
+A standard Transformer (like GPT-4) is the student who frantically re-reads every single page of the textbook before answering every single question. This strategy guarantees they find the specific details (perfect recall), but as the textbook gets thicker, they get exponentially slower until they simply cannot finish the test in time. 
+
+On the other hand, alternatives like RNNs or Mamba try to summarize the entire textbook onto a single index card. They can answer questions instantly because they don't have to look back at the book, but for long, complex subjects, they eventually run out of space on the card and start forgetting crucial information.
+
+This new method, Test-Time Training (TTT), changes the paradigm from retrieving information to learning it on the fly. Instead of re-reading the book or summarizing it onto a card, the TTT model treats the context window as a dataset and actually trains itself on it in real-time. It performs a mini-gradient descent update on its own neural weights as it reads. **This is equivalent to a student who reads the textbook and physically rewires their brain to master the subject matter before the test.** 
+
+Because the information is now compressed into the model's actual intelligence (its weights) rather than a temporary cache, the model can answer questions instantly (matching the constant speed of the fast index-card models) but with the high accuracy and scaling capability of the slow, page-turning Transformers. 
+
+**This effectively decouples intelligence from memory costs, allowing for massive context lengths without the usual slowdown.**
+
+---
+
+
+######Link to the Paper: https://arxiv.org/pdf/2512.23675
+
+---
+
+
+######Link to the Open-Sourced Official Implementation of End-to-End Test Time Training for Long Context: https://github.com/test-time-training/e2e",https://reddit.com/r/MachineLearning/comments/1qd696s/nvidia_endtoend_testtime_training_for_long/,2026-01-15 01:43:26
+[D] Why Mamba rewrote its core algorithm and Microsoft abandoned RetNet,115,petroslamb,31,"Mamba-2 restructured its recurrence from parallel scans (10-20% Tensor Core utilization) to block-diagonal GEMMs (60-70%). The architecture bent to fit the silicon.
+
+RetNet was published by Microsoft Research in July 2023 with promising results at 6.7B. Five months later, the same organization shipped Phi-2, a dense Transformer. Then Phi-3. Then Phi-4. The co-authors didn't bet on their own architecture.
+
+I wrote an analysis of why this pattern keeps repeating. The short version: Transformers and NVIDIA GPUs co-evolved into a stable attractor. Breaking out requires clearing two reinforcing gates at once, hardware compatibility and institutional backing, and the gates make each other harder to pass. At frontier scale, no pure alternative has done it.
+
+Essay has Tensor Core utilization numbers, analysis of alternative chip vendors, and three falsifiable predictions for 2028.",https://reddit.com/r/MachineLearning/comments/1qehwlu/d_why_mamba_rewrote_its_core_algorithm_and/,2026-01-16 14:47:45
+[D] Burnout from the hiring process,104,RNRuben,42,"I've been interviewing for research (some engineering) interships for the last 2 months, and I think I'm at a point of mental exhaustion from constant rejections and wasted time.
+
+For context, I just started my master’s at Waterloo, but I'm a research associate at one of the top labs in Europe. I have been doing research since my sophomore year. I did not start in ML, but over the last year and a half, I ended up in ML research, first in protein design and now in pretraining optimization.
+
+I started applying for interships a few months ago, and after 10+ first-round interviews and endless OAs, I haven't landed any offers. Most of the companies that I've interviewed with were a mix of (non-FAANG) frontier AI companies, established deep tech startups, research labs of F100 companies, a couple non name startups, and a quant firm. I get past a few rounds, then get cut.
+
+The feedback in general is that I'm not a good ""fit"" (a few companies told me I'm too researchy for a research engineer, another few were researching some niche stuff). And the next most common reason is that I failed the coding technical (I have no issue passing the research and ML theory technical interviews), but I think too slow for an engineer, and it's never the same type of questions (with one frontier company, I passed the research but failed the code review) and I'm not even counting OAs. Not a single one asked Leetcode or ML modelling; it's always some sort of a custom task that I have no prior experience with, so it's never the same stuff I can prepare.
+
+I'm at a loss, to be honest. Every PhD and a bunch of master's students in our lab have interned at frontier companies, and I feel like a failure that, after so many interviews, I can't get an offer. Because of my CV (no lies), I don't have a problem getting interviews, but I can't seem to get an offer. I've tried applying for non-research and less competitive companies, but I get hit with ""not a good fit.""
+
+I have 3 technicals next week, and tbh I know for a fact I'm not gonna pass 2 of them (too stupid to be a quant researcher) and the other is a 3rd round technical, but from the way he described it I don't think I'll be passing it (they're gonna throw a scientific simulation coding problem at me). And I still need to schedule one more between those 3, but I'm not sure why they even picked me, I don't do RL or robotics research. After so many days and hours spent preparing for each technical only to get cut, I mentally can't get myself to prepare for them anymore. It's always a new random format.
+
+I'm severely burned out by this whole process, but time is running out. I love research, but I'm starting to hate the hiring process in this industry. Any advice on what to do?",https://reddit.com/r/MachineLearning/comments/1qepc05/d_burnout_from_the_hiring_process/,2026-01-16 19:16:28
+[P] my shot at a DeepSeek style moe on a single rtx 5090,80,exhorder72,28,"I know most will wonder why I’m wasting my time training at only 19k tok a sec. It’s because I can. I’m doing this in my living room in my spare time. 0 formal ML experience. The absurd amount I’ve learned in the last few months made me realize I really picked the wrong career.
+
+My Mixture of Experts is 2.36B parameter with 8 routed experts plus a shared expert using top-2 routing. Attention is Grouped Query Attention with QK-normalization and RoPE positional embeddings. All feed-forward layers use SwiGLU activation with RMSNorm throughout. Load balancing follows DeepSeek V3’s auxiliary-loss-free approach using bias-based routing. I monitor coefficient of variation and maximum violation per step.
+
+Training runs on TorchAO FP8 quantization with the Muon optimizer and a multi-stage learning rate schedule (warmup, constant, cosine decay). The backend is optimized for Blackwell architecture with cuBLASLt.
+
+The data pipeline implements MeCo (Metadata Conditioning then Cooldown) with ledger-based deterministic sampling. I have document-aware attention masking and cross-document loss masking but was disabled for the initial MeCo run. I have since disabled MeCo and curated a clean corpus with no tagging of any kind. MeCo worked but it worked too well and with only 8 experts, it became very problematic.
+
+My two biggest early mistakes were not using symmetric router initialization (std=0.006) and not having a dense first layer. Cost me a lot of time and sleep. So what did I do? I cheated. I used aux loss of .003 snd ema smoothing at the beginning. I just didn’t know better. I paid a price later on for that.
+
+DO NOT use router scaling on a small MoE. DeepSeek used 2.5. Kimi K2 used 2.446. I tried 1.2 and it was horribly unstable and violation blew up to over .500.
+
+24 batch 6 Grad LR 3e-4 AdamW+Muon Scaled. Bias .001 Aux .0001. I update every step.
+
+As of yesterday: 2026-01-13 20:53:06 step 41915 | lr 3.00e-04 | loss 1.8867 | gnorm 0.13 | 19,415 tok/s (ema 19,553) | 75.9s/5 steps | cv 0.022 | bias -0.001708±0.179996 | rel_max=0.036 maxvio=0.027 ent=1.203 applied=True | seq_aux 2.444 2026-01-13 20:54:20     [moe] token counts: [150018, 148422, 155402, 147966, 145236, 146724, 144358, 141522] 2026-01-13 20:54:20 step 41920 | lr 3.00e-04 | loss 1.9263 | gnorm 0.13 | 20,102 tok/s (ema 19,828) | 73.4s/5 steps | cv 0.026 | bias -0.001708±0.179920 | rel_max=0.054 maxvio=0.054 ent=1.211 applied=True | seq_aux 2.515
+
+I got a long ways to go :)
+
+I’ll gladly answer any question. No gate keeping here. ",https://reddit.com/r/MachineLearning/comments/1qcxhgw/p_my_shot_at_a_deepseek_style_moe_on_a_single_rtx/,2026-01-14 19:53:25
+[D] I see more people trying to explain mHC than build it,71,Affectionate_Use9936,17,"This really irks me for some reason but there's like 10,000 explanations for mHC online while the only instance of someone actually trying to explore mHC in code is a single github repo (props to the repo).
+
+I just want to be able to implement it and plug it into existing projects. I don't need yet another analogy for why a cat won't fall off a cliff the ground isn't tipped over.
+
+This reminds me of my physics days when I'd see a constant stream of gurus explain some philosophy behind energy and the universe when they can't even take an eigenvalue. Like stay in your lane buddy. Or I guess multiple lanes...",https://reddit.com/r/MachineLearning/comments/1qbu8wp/d_i_see_more_people_trying_to_explain_mhc_than/,2026-01-13 15:27:22
+[R] China just released first SOTA multimodal model trained entirely on domestic chips,64,Different_Case_6484,5,"Zhipu AI and Huawei just dropped GLM-Image, and the technical details are interesting.
+
+First multimodal model trained completely on Chinese chips (Huawei Ascend 910) from data preprocessing to full scale training. They're using a hybrid architecture combining autoregressive + diffusion decoder.
+
+What stands out is the Chinese text rendering. It consistently ranks first among open source models for complex text generation, especially handling Chinese characters which most models struggle with.
+
+Native support for 1024 to 2048 resolution at any aspect ratio without additional training. API pricing is 0.1 yuan per image (roughly $0.014).
+
+The model handles both text to image and image to image generation in a single model. GitHub and Hugging Face repos are already up.
+
+This is significant because it proves you can train frontier models without relying on Nvidia hardware. The compute efficiency numbers they're claiming are 60% better than H200 for tokens per joule.
+
+Whether those benchmarks hold up in practice remains to be seen but the fact they pulled this off on domestic hardware is noteworthy.
+
+Edit: For anyone testing this, X-Design also handles multilingual text rendering well. Been comparing outputs and both handle complex layouts better than DALL-E 3.
+
+",https://reddit.com/r/MachineLearning/comments/1qeakhz/r_china_just_released_first_sota_multimodal_model/,2026-01-16 08:27:32
+[R] (DeepSeek) Conditional Memory via Scalable Lookup: A New Axis of Sparsity for Large Language Models,62,Nunki08,2,"GitHub: Engram: [https://github.com/deepseek-ai/Engram](https://github.com/deepseek-ai/Engram)  
+arXiv:2601.07372 \[cs.CL\]: https://arxiv.org/abs/2601.07372  
+""While Mixture-of-Experts (MoE) scales capacity via conditional computation, Transformers lack a native primitive for knowledge lookup, forcing them to inefficiently simulate retrieval through computation. To address this, we introduce conditional memory as a complementary sparsity axis, instantiated via Engram, a module that modernizes classic N-gram embedding for O(1) lookup. By formulating the Sparsity Allocation problem, we uncover a U-shaped scaling law that optimizes the trade-off between neural computation (MoE) and static memory (Engram). Guided by this law, we scale Engram to 27B parameters, achieving superior performance over a strictly iso-parameter and iso-FLOPs MoE baseline. Most notably, while the memory module is expected to aid knowledge retrieval (e.g., MMLU +3.4; CMMLU +4.0), we observe even larger gains in general reasoning (e.g., BBH +5.0; ARC-Challenge +3.7) and code/math domains\~(HumanEval +3.0; MATH +2.4). Mechanistic analyses reveal that Engram relieves the backbone's early layers from static reconstruction, effectively deepening the network for complex reasoning. Furthermore, by delegating local dependencies to lookups, it frees up attention capacity for global context, substantially boosting long-context retrieval (e.g., Multi-Query NIAH: 84.2 to 97.0). Finally, Engram establishes infrastructure-aware efficiency: its deterministic addressing enables runtime prefetching from host memory, incurring negligible overhead. We envision conditional memory as an indispensable modeling primitive for next-generation sparse models.""",https://reddit.com/r/MachineLearning/comments/1qbnkrn/r_deepseek_conditional_memory_via_scalable_lookup/,2026-01-13 10:07:06
+"[R] Vision Transformers with Self-Distilled Registers, NeurIPS 2025",59,44seconds,8,"So sharing some of our work we published at NeurIPS 2025 as a Spotlight.
+
+Weights and code are public (see ArXiv).
+
+TL;DR: Vision Transformers typically have artifacts in their ***dense features***. While the exact reason is unknown, there is consensus that adding so called ""***register***"" tokens mitigates this issue. These tokens participate in the self-attention process, but are not used for the output.
+
+When introduced with DINOv2 models in ICLR 2024, this requires vision transformers to be trained from scratch -- which obviously most people cannot afford.
+
+We show that you can actually get the benefits of registers pretty cheaply ***with existing pre-trained models*** without ANY labeled images. You can leverage the semantic invariance of images under shift &amp; left-right flip (most natural images, obviously don't flip images that contain text). We simply randomly augment the image multiple times, pad the borders with white, and un-shift/un-flip the dense features, and average over augmentations to use as a distillation target.
+
+Surprisingly this extremely simple approach (Post Hoc Registers, PH-Reg) ***improves dense features for segmentation and depth across all datasets*** compared to both the student and the non-augmented teacher.
+
+Our results are better than traditional attention modifications (MaskCLIP -- ECCV 22, SCLIP -- ECCV 24, ClearCLIP -- ECCV 24, NACLIP -- WACV 25), and much cheaper than *Denoising Vision Transformers* since we don't need to utilize neural fields. Our results introduce minimal additional parameters compared to the original model.   
+",https://reddit.com/r/MachineLearning/comments/1qbtbfb/r_vision_transformers_with_selfdistilled/,2026-01-13 14:51:15
+[D] ICML26 new review policies,50,reutococco,19,"ICML26 introduced a review type selection, where the author can decide whether LLMs can be used during their paper review, according to these two policies:
+
+* **Policy A (Conservative):** Use of LLMs for reviewing is strictly prohibited.  
+* **Policy B (Permissive):** 
+   * ***Allowed***: Use of LLMs to help understand the paper and related works, and polish reviews. Submissions can be fed to privacy-compliant\* LLMs. 
+   * ***Not allowed***: Ask LLMs about strengths/weaknesses, ask to suggest key points for the review, suggest an outline for the review, or write the full review *\*By “privacy-compliant”, we refer to LLM tools that do not use logged data for training and that place limits on data retention. This includes enterprise/institutional subscriptions to LLM APIs, consumer subscriptions with an explicit opt-out from training, and self-hosted LLMs. (We understand that this is an oversimplification.)*
+
+I'm struggling to decide which one to select, any suggestions?",https://reddit.com/r/MachineLearning/comments/1qg5pa9/d_icml26_new_review_policies/,2026-01-18 10:54:51
+[R] Is it possible for a high school student to publish multiple papers at top conferences within a year?,43,ApprehensiveEgg5201,23,"I recently came across the [Google Scholar profile](https://scholar.google.com/citations?hl=en&amp;user=pCrKkUQAAAAJ&amp;view_op=list_works&amp;sortby=pubdate) of a high school student and was quite astonished by the strength of his publication record. Even more strikingly, he is also serving as a reviewer for ICLR and AISTATS.",https://reddit.com/r/MachineLearning/comments/1qe1z90/r_is_it_possible_for_a_high_school_student_to/,2026-01-16 01:12:56
+[P] Progressive coding exercises for transformer internals,40,randmusr66,5,"For a while I've been looking for a good format to practice implementing ML algorithms. LeetCode feels too disconnected from real work, but in actual projects you just use existing libraries. What worked for me was breaking real algorithms into progressive steps and implementing them piece by piece.
+
+I've been using this approach for myself, and recently decided to clean up some of it with tests and hints in case others find it useful. Currently covers: attention, BPE tokenization, beam search variants, and RoPE.
+
+Curious if others have found similar formats helpful, or what primitives would be worth adding.",https://reddit.com/r/MachineLearning/comments/1qf80mh/p_progressive_coding_exercises_for_transformer/,2026-01-17 08:33:24
+[D] Scale AI ML Research Engineer Interviews,38,sailor-goon-is-here,12,"Hi, I'm looking for help into preparing for the upcoming coding interviews for an ML research engineer position I applied to at Scale. These are for the onsite.
+
+The first coding question relates parsing data, data transformations, getting statistics about the data. The second (ML) coding involves ML concepts, LLMs, and debugging.
+
+I found the description of the ML part to be a bit vague. For those that have done this type of interview, what did you do to prepare? So far on my list, I have reviewing hyperparameters of LLMs, PyTorch debugging, transformer debugging, and data pipeline pre-processing, ingestion, etc. Will I need to implement NLP or CV algorithms from scratch?
+
+Any insight to this would be really helpful.",https://reddit.com/r/MachineLearning/comments/1qe1u5f/d_scale_ai_ml_research_engineer_interviews/,2026-01-16 01:06:36
+"[P] Awesome Physical AI – A curated list of academic papers and resources on Physical AI — focusing on VLA models, world models, embodied intelligence, and robotic foundation models.",38,kwk236,5,"I've been compiling papers on Physical AI — the intersection of foundation models and robotics. This covers Vision-Language-Action (VLA) models like RT-2 and π₀, world models (DreamerV3, Genie 2, JEPA), diffusion policies, real-world deployment and latency problems, cross-embodiment transfer, scaling laws, and safety/alignment for robots.
+
+The field has exploded in the past 18 months. We went from ""lets try llms on robotics"" to having so many dimensions to optimize for. so felt right to maintain a running list of resources.
+
+Organized by: foundations → architectures → action representations → world models → learning paradigms → deployment → applications.
+
+Contributions welcome — especially corrections and missing papers.  
+[https://github.com/keon/awesome-physical-ai](https://github.com/keon/awesome-physical-ai)",https://reddit.com/r/MachineLearning/comments/1qc6ybk/p_awesome_physical_ai_a_curated_list_of_academic/,2026-01-13 23:24:20
+[D] ICASSP 2026 Results,39,Financial-Panda6581,96,"It looks like ICASSP 2026 decisions may already be accessible.
+
+If you can log in to the following link and successfully send an invitation email, that seems to indicate your paper has been accepted:
+
+[ https://cmsworkshops.com/ICASSP2026/author\_invitation\_request.php ](https://cmsworkshops.com/ICASSP2026/author_invitation_request.php)
+
+The email says: “On behalf of IEEE ICASSP 2026, I invite you to join us for the upcoming conference.
+
+We are pleased to inform you that your submission has been accepted for presentation at the 2026 IEEE International Conference on Acoustics, Speech, and Signal Processing (IEEE ICASSP 2026) in Barcelona, Spain, during 3–8 May 2026. ICASSP is the world’s largest and most comprehensive technical conference focused on signal processing and its applications. It offers a comprehensive technical program presenting all the latest development in research and technology in the industry that attracts thousands of professionals annually.”
+
+Hopefully this helps others who are anxiously waiting. Good luck everyone
+
+\--------
+
+Update: It was a bug that got fixed within a few hours. It looks like no one can access it right now.
+
+“Error: No match for paper number and password. 0x4C”.
+
+\--------
+
+Update: Just got the official email! 🥰 ID 9000-10000
+
+Some folks haven’t gotten the email yet, but they can already find their papers on the accepted list here:
+
+[ https://cmsworkshops.com/ICASSP2026/papers/accepted\_papers.php ](https://cmsworkshops.com/ICASSP2026/papers/accepted_papers.php)
+
+you can also check a community-maintained spreadsheet compiled by users on another platform:
+
+[ https://docs.qq.com/sheet/DY3NTYVhwVVVGUUtx?tab=BB08J2 ](https://docs.qq.com/sheet/DY3NTYVhwVVVGUUtx?tab=BB08J2)
+
+The list is still updating, so no worries if yours isn’t there yet just give it a bit more time.
+
+You can check your paper status here:
+
+[https://cmsworkshops.com/ICASSP2026/Papers/FindPaperStatus.asp](https://cmsworkshops.com/ICASSP2026/Papers/FindPaperStatus.asp)",https://reddit.com/r/MachineLearning/comments/1qeips6/d_icassp_2026_results/,2026-01-16 15:18:35
+[D] LLMs as a semantic regularizer for feature synthesis (small decision-tree experiment),33,ChavXO,14,"I’ve been experimenting with using LLMs not to generate features, but instead to filter them during enumerative feature synthesis.
+
+The approach was inspired by this paper: https://arxiv.org/pdf/2403.03997v1
+
+I had already been playing with enumerative bottom up synthesis but noticed it usually gave me unintelligible features (even with regularization).
+
+I looked into how other symbolic approaches deal with this problem and saw that they tried to model the semantics of the domain somehow - including dimensions, refinement types etc. But those approaches weren't appealing to me because I was trying to come up with something that worked in general.
+
+So I tried using an LLM to score candidate expressions by how meaningful they are. The idea was that the semantic meaning of the column names, the dimensions, and the salience of the operations could be embedded in the LLM.
+
+My approach was:
+* Enumerate simple arithmetic features (treat feature eng as program synthesis)
+* Use an LLM as a semantic filter (“does this look like a meaningful quantity?”)
+* Train a decision tree (with oblique splits) considering only the filtered candidates as potential splits.
+
+The result was that the tree was noticeably more readable, accuracy was similar / slightly better in my small test.
+
+
+I wrote it up here: https://mchav.github.io/learning-better-decision-tree-splits/
+Runnable code is [here](https://github.com/mchav/dataframe/blob/main/app%2FREADME.md)
+
+If you’ve tried constraining feature synthesis before: what filters worked best in practice? Are the any measures of semantic viability out there?",https://reddit.com/r/MachineLearning/comments/1qffcgi/d_llms_as_a_semantic_regularizer_for_feature/,2026-01-17 14:59:55
