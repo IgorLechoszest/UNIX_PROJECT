@@ -1,0 +1,16 @@
+version: "2.2"
+
+services:
+  airflow:
+    build: .
+    container_name: airflow_app
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "False"
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./src:/opt/airflow/src
+      - ./logs:/opt/airflow/logs
