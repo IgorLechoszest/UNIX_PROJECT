@@ -78,14 +78,3 @@ def fetch_and_save_reddit(subreddit, limit=20, start_date=None, end_date=None):
     except Exception as e:
         print(f"❌ Błąd ingestu: {e}")
         raise e
-
-if __name__ == "__main__":
-    # PRZYKŁAD UŻYCIA:
-    # Chcemy dane treningowe z Grudnia 2025 (zakładając, że dziś jest Styczeń 2026)
-    
-    s_date = "2024-12-01"
-    e_date = "2025-12-31"
-    
-    # Dajemy duży limit (np. 500), żeby mieć szansę znaleźć posty z tamtego okresu wśród topowych z roku
-    fetch_and_save_reddit('Arsenal', limit=20)
-

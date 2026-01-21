@@ -21,7 +21,7 @@ def ingest_history_wrapper():
         fetch_and_save_reddit(sub, limit=20, start_date=s_date, end_date=e_date)
 
 with DAG('01_init_project_pipeline', 
-        start_date=datetime(2024, 1, 1), 
+        start_date=datetime(2026, 1, 1), 
         schedule_interval='@once', 
         catchup=False) as dag:
 

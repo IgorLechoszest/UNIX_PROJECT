@@ -12,9 +12,12 @@ from src.predict import predict_daily_batch
 SUBREDDITS = ['python', 'Arsenal', 'anime', 'gaming', 'Polska']
 
 def ingest_daily_wrapper():
+    start_date = datetime.now() - timedelta(hours=24)
+    
+    print(f"--- Daily Ingest: Pobieranie postów nowszych niż {start_date} ---")
+
     for sub in SUBREDDITS:
-        # Limit 5 dla dziennego przebiegu
-        fetch_and_save_reddit(sub, limit=5)
+        fetch_and_save_reddit(sub, limit=5, start_date=start_date)
 
 default_args = {
     'owner': 'airflow',
@@ -24,8 +27,8 @@ default_args = {
 
 with DAG('02_daily_inference_pipeline', 
         default_args=default_args,
-        start_date=datetime(2024, 1, 1), 
-        schedule_interval='0 3 * * *', # Codziennie o 3:00 rano
+        start_date=datetime(2026, 1, 1), 
+        schedule_interval='0 3 * * *',
         catchup=False) as dag:
 
     t1_ingest_daily = PythonOperator(
