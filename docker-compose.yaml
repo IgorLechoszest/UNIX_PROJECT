@@ -1,0 +1,56 @@
+services:
+  airflow-init:
+    build: .
+    user: "0:0" # Wymuszenie roota
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=SequentialExecutor
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=sqlite:////opt/airflow/airflow.db
+      - AIRFLOW__CORE__UNIT_TEST_MODE=True # Pomaga przy uruchamianiu niektórych zadań jako root
+      - PYTHONPATH=/opt/airflow:/opt/airflow/src
+    volumes:
+      - .:/opt/airflow
+    command: >
+      bash -c "airflow db init &&
+      airflow users create --username airflow --firstname Admin --lastname Admin --role Admin --email admin@example.com --password airflow &&
+      airflow dags trigger init_pipeline_dag || echo 'DAG nie znaleziony'"
+
+  airflow-webserver:
+    build: .
+    user: "0:0"
+    restart: always
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+    ports:
+      - "8081:8080"
+    volumes:
+      - .:/opt/airflow
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./src:/opt/airflow/src
+      - ./data:/opt/airflow/data
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=SequentialExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=sqlite:////opt/airflow/airflow.db
+      - PYTHONPATH=/opt/airflow:/opt/airflow/src
+    command: webserver
+
+  airflow-scheduler:
+    build: .
+    user: "0:0"
+    restart: always
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+    volumes:
+      - .:/opt/airflow
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./src:/opt/airflow/src
+      - ./data:/opt/airflow/data
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=SequentialExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=sqlite:////opt/airflow/airflow.db
+      - PYTHONPATH=/opt/airflow:/opt/airflow/src
+    command: scheduler

@@ -1,5 +1,5 @@
 from sqlalchemy import text
-from database import get_db_engine
+from src.database import get_db_engine
 
 def setup_snowflake_objects():
     print("--- DDL: Tworzenie tabel i widoków ---")

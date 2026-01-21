@@ -1,29 +1,25 @@
-# Używamy lekkiego obrazu bazowego z Pythonem (np. Python 3.10 slim)
-FROM python:3.10-slim
+FROM apache/airflow:2.8.4-python3.10
 
-# Ustawiamy katalog domowy Airflow w kontenerze
-ENV AIRFLOW_HOME=/opt/airflow
+USER root
 
-# (Opcjonalnie) Instalujemy zależności systemowe potrzebne Airflow i Snowflake
-RUN apt-get update && apt-get install -y build-essential libssl-dev libffi-dev \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+# 1. Instalacja zależności systemowych (jako root)
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libssl-dev \
+    libffi-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# Instalacja Apache Airflow i dodatkowych pakietów Python (Snowflake itp.)
-# Wykorzystujemy plik requirements.txt dla powtarzalności budowy
-COPY requirements.txt .
-RUN pip install --upgrade pip setuptools wheel
-RUN pip install --no-cache-dir -r requirements.txt
+# 2. Przygotowanie folderów
+RUN mkdir -p /opt/airflow/data /opt/airflow/src /opt/airflow/logs /opt/airflow/dags
 
-# Skopiowanie plików projektu do obrazu
-COPY dags/ $AIRFLOW_HOME/dags/
-COPY src/ $AIRFLOW_HOME/src/
+# 3. Instalacja bibliotek Python
+# Przełączamy się na airflow TYLKO na czas pip install, żeby obraz nie protestował
+USER airflow
+COPY requirements.txt /requirements.txt
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel \
+    && pip install --no-cache-dir -r /requirements.txt
 
-# Skopiowanie skryptu entrypoint i nadanie mu praw wykonania
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-
-# Otwieramy port 8080 dla interfejsu webowego Airflow
-EXPOSE 8080
-
-# Ustawiamy entrypoint kontenera
-ENTRYPOINT ["/entrypoint.sh"]
+# 4. Powrót do root dla reszty operacji i dla działania kontenerów
+USER root
+COPY --chown=root:root src/ /opt/airflow/src/

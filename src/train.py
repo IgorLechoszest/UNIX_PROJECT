@@ -5,7 +5,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
-from database import get_db_engine
+from src.database import get_db_engine
 
 def train_model():
     print("--- Trening: Pobieranie danych historycznych ---")

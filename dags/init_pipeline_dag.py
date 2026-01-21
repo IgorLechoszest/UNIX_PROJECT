@@ -5,7 +5,6 @@ import sys
 import os
 
 # Dodanie ścieżki src
-sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
 from src.setup_warehouse import setup_snowflake_objects
 from src.ingest import fetch_and_save_reddit

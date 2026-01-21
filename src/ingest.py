@@ -3,7 +3,7 @@ import pandas as pd
 import requests
 from datetime import datetime, timedelta
 from snowflake.connector.pandas_tools import pd_writer
-from database import get_db_engine
+from src.database import get_db_engine
 
 def fetch_and_save_reddit(subreddit, limit=20, start_date=None, end_date=None):
     """

@@ -2,7 +2,8 @@ import pandas as pd
 import joblib
 import os
 from datetime import datetime
-from database import get_db_engine
+from src.database import get_db_engine
+
 
 def predict_daily_batch():
     model_path = 'models/topic_classifier.pkl'
