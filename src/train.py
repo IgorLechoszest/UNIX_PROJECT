@@ -36,6 +36,3 @@ def train_model():
         
     joblib.dump(model_pipeline, 'models/topic_classifier.pkl')
     print("✅ Model wytrenowany i zapisany w models/topic_classifier.pkl")
-
-if __name__ == "__main__":
-    train_model()
