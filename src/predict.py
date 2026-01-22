@@ -39,5 +39,16 @@ def predict_daily_batch():
         'model_version': 'v1_rf'
     })
     
+    correct = (results_df['real_subreddit'] == results_df['predicted_subreddit']).sum()
+    total = len(results_df)
+    accuracy = correct / total
+
+    print(f"📊 DOKŁADNOŚĆ (ACCURACY): {accuracy:.2%}", flush=True)
+    print("\n🔍 GDZIE MODEL SIĘ MYLI (Prawdziwe vs Przewidziane):", flush=True)
+    confusion_matrix = pd.crosstab(
+    results_df['real_subreddit'], 
+    results_df['predicted_subreddit'], 
+    margins=True)
+    print(confusion_matrix, flush=True)
     results_df.to_sql('daily_predictions', engine, if_exists='append', index=False)
     print("✅ Wyniki zapisane w tabeli daily_predictions.")

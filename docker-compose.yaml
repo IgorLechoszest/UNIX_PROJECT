@@ -13,7 +13,8 @@ services:
     command: >
       bash -c "airflow db init &&
       airflow users create --username airflow --firstname Admin --lastname Admin --role Admin --email admin@example.com --password airflow &&
-      airflow dags trigger init_pipeline_dag || echo 'DAG nie znaleziony'"
+      sleep 10 &&
+      airflow dags trigger 01_init_project_pipeline || echo 'DAG nadal nie znaleziony'"
 
   airflow-webserver:
     build: .

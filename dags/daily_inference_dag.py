@@ -11,12 +11,13 @@ from src.predict import predict_daily_batch
 SUBREDDITS = ['python', 'Arsenal', 'anime', 'gaming', 'Polska']
 
 def ingest_daily_wrapper():
-    start_date = datetime.now() - timedelta(hours=24)
+    start_date = datetime.now() - timedelta(days =7)
+    end_date = datetime.now()
     
     print(f"--- Daily Ingest: Pobieranie postów nowszych niż {start_date} ---")
 
     for sub in SUBREDDITS:
-        fetch_and_save_reddit(sub, limit=5, start_date=start_date)
+        fetch_and_save_reddit(sub, limit=5, start_date=start_date, end_date = end_date)
 
 default_args = {
     'owner': 'airflow',
